@@ -1,30 +1,17 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:flow_echo/main.dart';
+import 'package:flow_echo/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('显示心流回响基础骨架', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: FlowEchoApp()));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('心流回响'), findsOneWidget);
+    expect(find.text('演示模拟数据，仅用于产品功能验证'), findsOneWidget);
+    expect(find.text('首页'), findsOneWidget);
+    expect(find.text('历史'), findsOneWidget);
+    expect(find.text('指纹'), findsOneWidget);
+    expect(find.text('回顾'), findsOneWidget);
   });
 }
