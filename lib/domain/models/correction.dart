@@ -21,32 +21,45 @@ class Correction {
     this.undoneAt,
   });
 
-/// 本条修正记录唯一ID
+  /// 本条修正记录唯一ID
   final String id;
+
   /// 对应当时生理快照的id
   final String snapshotId;
+
   /// 修正原因：状态错 / 场景错 / 数据不准
   final CorrectionReason reason;
+
   /// 修改前投入度
   final double oldInvestment;
+
   /// 修改前消耗度
   final double oldDepletion;
+
   /// 修改后投入度
   final double newInvestment;
+
   /// 修改后消耗度
   final double newDepletion;
+
   /// 修改前象限
   final Quadrant oldQuadrant;
+
   /// 修改后象限
   final Quadrant newQuadrant;
+
   /// 修正操作之前的基线快照
   final Map<String, Object?> beforeBaseline;
+
   /// 修正操作生成的新基线
   final Map<String, Object?> afterBaseline;
+
   /// 本次修正影响的学习片段id（可选）
   final String? affectedSegmentId;
+
   /// 修正创建时间
   final DateTime createdAt;
+
   /// 撤销时间；不为空代表这条修正已经被撤销
   final DateTime? undoneAt;
 
@@ -70,7 +83,7 @@ class Correction {
     };
   }
 
-///从数据库Map还原Correction对象
+  ///从数据库Map还原Correction对象
   factory Correction.fromMap(Map<String, Object?> map) {
     final undoneAt = map['undone_at'] as int?;
     return Correction(

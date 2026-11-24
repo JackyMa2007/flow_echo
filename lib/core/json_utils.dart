@@ -19,6 +19,6 @@ Map<String, Object?> decodeObjectMap(Object? value) {
     return <String, Object?>{};
   }
 
-// 统一把key转为字符串，保证类型符合 Map<String, Object?>
+  // 统一把key转为字符串，保证类型符合 Map<String, Object?>
   return decoded.map((key, item) => MapEntry(key.toString(), item as Object?));
 }

@@ -17,30 +17,40 @@ class SensorWindow {
     this.isComplete = true,
   });
 
- /// 窗口唯一ID
+  /// 窗口唯一ID
   final String id;
+
   /// 本窗口采集时间
   final DateTime capturedAt;
+
   /// 采集时所属场景标签
   final SceneType scene;
+
   /// 窗口平均心率
   final double heartRate;
+
   /// 窗口HRV
   final double hrv;
+
   /// 连续久坐时长（分钟）
   final double sedentaryMinutes;
+
   /// 窗口内屏幕解锁次数
   final int unlockCount;
+
   /// 输入活跃度
   final double inputActivity;
+
   /// 窗口内App切换次数
   final int appSwitchCount;
+
   /// 数据来源：simulated=模拟数据（Beta固定用这个）
   final String dataSource;
+
   /// 窗口数据是否完整，不完整的数据不参与状态计算
   final bool isComplete;
 
-/// 转为数据库存储Map
+  /// 转为数据库存储Map
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -57,7 +67,7 @@ class SensorWindow {
     };
   }
 
-/// 从数据库Map还原SensorWindow对象
+  /// 从数据库Map还原SensorWindow对象
   factory SensorWindow.fromMap(Map<String, Object?> map) {
     return SensorWindow(
       id: map['id']! as String,
@@ -76,6 +86,5 @@ class SensorWindow {
     );
   }
 }
-
 
 ///就是你接口契约里算法函数的原始输入数据载体，Beta 里全部是 simulated 模拟数据流。

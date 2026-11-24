@@ -13,6 +13,20 @@ class CorrectionRepository {
     await db.insert('correction', correction.toMap());
   }
 
+  Future<Correction?> findById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'correction',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return Correction.fromMap(rows.first);
+  }
+
   /// 查询指定时间之后所有修正记录，按时间倒序
   Future<List<Correction>> correctionsSince(DateTime from) async {
     final db = await _database.database;
@@ -25,6 +39,5 @@ class CorrectionRepository {
     return rows.map(Correction.fromMap).toList(growable: false);
   }
 }
-
 
 ///专门封装 correction 表的新增和按时间查询操作，隔离业务代码和 SQL。

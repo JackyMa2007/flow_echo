@@ -19,7 +19,7 @@ class BaselineState {
     this.isActive = true,
   });
 
-/// 构造初始默认基线（系统自带基线，用户还没有校准数据时使用）
+  /// 构造初始默认基线（系统自带基线，用户还没有校准数据时使用）
   factory BaselineState.initial(DateTime now) {
     return BaselineState(
       id: 'baseline-default',
@@ -38,32 +38,44 @@ class BaselineState {
 
   /// 基线唯一标识
   final String id;
+
   /// 基线类型：default / calibrated（系统基线 / 用户校准基线）
   final String kind;
+
   /// 基线生效时间戳
   final DateTime effectiveAt;
+
   /// 基线过期时间，为空代表永久有效
   final DateTime? expiresAt;
+
   /// 基线平均心率
   final double heartRate;
+
   /// 心率标准差
   final double heartRateStd;
+
   /// 基线HRV
   final double hrv;
+
   /// 基线输入活跃度
   final double inputActivity;
+
   /// 基线每10分钟屏幕解锁次数
   final double unlockPer10Min;
+
   /// 投入度判定阈值
   final double investmentThreshold;
+
   /// 消耗度判定阈值
   final double depletionThreshold;
+
   /// 来源：system（系统）/ user（用户拖拽校准）
   final String source;
+
   /// 是否启用这条基线，同一时间只激活一条
   final bool isActive;
 
-/// 转为数据库存储map（toMap给sqflite入库）
+  /// 转为数据库存储map（toMap给sqflite入库）
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -76,7 +88,7 @@ class BaselineState {
     };
   }
 
-/// 提取核心基线字段序列化为json，存入baseline_json文本字段
+  /// 提取核心基线字段序列化为json，存入baseline_json文本字段
   Map<String, Object?> toJson() {
     return {
       'heartRate': heartRate,
@@ -89,7 +101,7 @@ class BaselineState {
     };
   }
 
-/// 从数据库读出的map还原BaselineState对象
+  /// 从数据库读出的map还原BaselineState对象
   factory BaselineState.fromMap(Map<String, Object?> map) {
     final expiresAt = map['expires_at'] as int?;
     final json = decodeObjectMap(map['baseline_json']);

@@ -261,6 +261,4 @@ Future<void> seedTasks(DatabaseExecutor db) async {
   await batch.commit(noResult: true);
 }
 
-
-
 ///数据库建表脚本，定义全部表结构、索引，首次创建数据库时自动建好表并预置推荐任务。

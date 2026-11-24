@@ -18,26 +18,35 @@ class NotificationDecision {
 
   /// 决策记录唯一ID
   final String id;
+
   /// 决策生成时间
   final DateTime createdAt;
+
   /// 关联的生理快照ID
   final String snapshotId;
+
   /// 提醒等级 l0~l3
   final NotificationLevel level;
+
   /// 消耗本次提醒额度
   final double cost;
+
   /// 本次提醒预期收益（恢复价值）
   final double value;
+
   /// 决策之后剩余可用提醒次数
   final int budgetRemaining;
+
   /// 是否进入等待队列，暂不下发
   final bool queued;
+
   /// 触发提醒的原因文本
   final String reason;
+
   /// 提醒实际推送成功时间；为空代表还没推送
   final DateTime? deliveredAt;
 
-///转为数据库储存Map
+  ///转为数据库储存Map
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -53,7 +62,7 @@ class NotificationDecision {
     };
   }
 
-///从数据库Map还原NotificationDecision对象
+  ///从数据库Map还原NotificationDecision对象
   factory NotificationDecision.fromMap(Map<String, Object?> map) {
     final deliveredAt = map['delivered_at'] as int?;
     return NotificationDecision(
@@ -72,7 +81,6 @@ class NotificationDecision {
     );
   }
 }
-
 
 ///用来控制你 Beta 里「一天最多 3 次恢复提醒」的额度管理，
 ///记录每一次算法要不要弹提醒、有没有真正发出去。

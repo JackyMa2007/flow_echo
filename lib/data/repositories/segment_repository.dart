@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/study_segment.dart';
 import '../db/app_database.dart';
 
@@ -52,6 +53,20 @@ class SegmentRepository {
     return rows.map(StudySegment.fromMap).toList(growable: false);
   }
 
+  Future<StudySegment?> findById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'study_segment',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return StudySegment.fromMap(rows.first);
+  }
+
   /// 统计训练样本总量、时间跨度等指标
   Future<SegmentStats> trainingStats() async {
     final segments = await trainingSegments();
@@ -83,8 +98,6 @@ class SegmentRepository {
     );
   }
 }
-
-
 
 ///管理 study_segment 表，
 ///批量存片段、拉取训练样本、统计数据、支持样本降权。

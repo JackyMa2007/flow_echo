@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../../core/constants.dart';
 
 /// 推荐任务条目模型
@@ -15,14 +16,19 @@ class TaskItem {
 
   /// 任务唯一ID
   final String id;
+
   /// 任务名称
   final String title;
+
   /// 认知负荷等级
   final CognitiveLoad cognitiveLoad;
+
   /// 适合执行该任务的心流象限集合
   final Set<Quadrant> suitableQuadrants;
+
   /// 预估耗时（分钟）
   final int estimatedMinutes;
+
   /// 是否启用该任务，关闭后不再参与推荐
   final bool enabled;
 
@@ -57,6 +63,5 @@ class TaskItem {
     );
   }
 }
-
 
 ///任务库，算法根据当前象限，挑选匹配的任务给用户推荐

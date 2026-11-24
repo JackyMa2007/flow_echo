@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/notification_decision.dart';
 import '../db/app_database.dart';
 
@@ -18,6 +19,20 @@ class NotificationRepository {
     );
   }
 
+  Future<NotificationDecision?> findById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'notification_decision',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return NotificationDecision.fromMap(rows.first);
+  }
+
   /// 查询起止时间范围内所有提醒决策，按时间倒序返回
   Future<List<NotificationDecision>> decisionsBetween(
     DateTime from,
@@ -33,7 +48,5 @@ class NotificationRepository {
     return rows.map(NotificationDecision.fromMap).toList(growable: false);
   }
 }
-
-
 
 ///负责提醒决策表的写入和时间段查询，用来管控每日提醒额度、查看历史提醒。

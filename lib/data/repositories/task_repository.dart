@@ -28,6 +28,20 @@ class TaskRepository {
     return rows.map(TaskItem.fromMap).toList(growable: false);
   }
 
+  Future<TaskItem?> findById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'task_item',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return TaskItem.fromMap(rows.first);
+  }
+
   /// 修改指定任务的启用/关闭状态
   Future<void> setEnabled(String id, bool enabled) async {
     final db = await _database.database;
@@ -39,6 +53,5 @@ class TaskRepository {
     );
   }
 }
-
 
 ///任务仓库，读取任务列表和控制任务是否参与推荐。

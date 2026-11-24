@@ -11,14 +11,18 @@ class SceneSession {
     this.endReason,
   });
 
-/// 会话唯一ID
+  /// 会话唯一ID
   final String id;
+
   /// 会话场景类型
   final SceneType scene;
+
   /// 会话开始时间
   final DateTime startedAt;
+
   /// 会话结束时间，为空代表会话正在进行中
   final DateTime? endedAt;
+
   /// 结束原因：切换场景 / 手动结束
   final String? endReason;
 
@@ -27,7 +31,7 @@ class SceneSession {
     return (endedAt ?? now).difference(startedAt);
   }
 
-/// 复制并修改部分字段（用来关闭会话、填充endedAt和endReason）
+  /// 复制并修改部分字段（用来关闭会话、填充endedAt和endReason）
   SceneSession copyWith({DateTime? endedAt, String? endReason}) {
     return SceneSession(
       id: id,
@@ -38,7 +42,7 @@ class SceneSession {
     );
   }
 
-/// 转为数据库存储Map
+  /// 转为数据库存储Map
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -49,7 +53,7 @@ class SceneSession {
     };
   }
 
-/// 从数据库Map还原SceneSession对象
+  /// 从数据库Map还原SceneSession对象
   factory SceneSession.fromMap(Map<String, Object?> map) {
     final endedAt = map['ended_at'] as int?;
     return SceneSession(
@@ -63,7 +67,6 @@ class SceneSession {
     );
   }
 }
-
 
 ///对应 Beta 第一条需求 —— 切换场景立刻结束当前片段结算，
 ///这个就是用来记录每一段场景周期。

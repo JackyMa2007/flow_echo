@@ -18,20 +18,28 @@ class StudySegment {
 
   /// 片段唯一ID
   final String id;
+
   /// 归属场景会话ID
   final String sceneSessionId;
+
   /// 片段开始时间
   final DateTime startedAt;
+
   /// 片段结束时间
   final DateTime endedAt;
+
   /// 本片段场景标签
   final SceneType scene;
+
   /// 样本权重，用户校准过的样本权重会更高
   final double sampleWeight;
+
   /// 人工标签（预留）
   final String? label;
+
   /// 特征包，汇总这段时间内提取的统计特征
   final Map<String, Object?> features;
+
   /// 是否纳入指纹/训练集；娱乐场景标记为false，不参与推理训练
   final bool includedInTraining;
 
@@ -65,8 +73,6 @@ class StudySegment {
     );
   }
 }
-
-
 
 ///Beta 里规定的 20 分钟最小样本块，
 ///所有的算法学习、指纹生成都是基于这个片段。

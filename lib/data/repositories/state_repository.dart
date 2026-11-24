@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/state_snapshot.dart';
 import '../db/app_database.dart';
 
@@ -24,6 +25,20 @@ class StateRepository {
     final rows = await db.query(
       'state_snapshot',
       orderBy: 'calculated_at DESC',
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return StateSnapshot.fromMap(rows.first);
+  }
+
+  Future<StateSnapshot?> findById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'state_snapshot',
+      where: 'id = ?',
+      whereArgs: [id],
       limit: 1,
     );
     if (rows.isEmpty) {
@@ -73,8 +88,5 @@ class StateRepository {
     return (rows.first['day_count'] as int?) ?? 0;
   }
 }
-
-
-
 
 ///这个仓库负责心流快照的存储、查询、标记修正和统计有数据的天数。

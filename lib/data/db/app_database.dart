@@ -9,20 +9,22 @@ class AppDatabase {
   AppDatabase({DatabaseFactory? factory, this.pathOverride})
     : _factory = factory ?? databaseFactory;
 
-///数据库版本号，Beta V0.1初始版本1
+  ///数据库版本号，Beta V0.1初始版本1
   static const int version = 1;
+
   ///数据库文件名
   static const String fileName = 'flow_echo.db';
 
   final DatabaseFactory _factory;
+
   ///自定义数据库路径（用于调试)
   final String? pathOverride;
   Database? _database;
 
-///判断数据库是否已经打开
+  ///判断数据库是否已经打开
   bool get isOpen => _database?.isOpen ?? false;
 
-///获取数据库实例，单例复用；没打开则自动打开
+  ///获取数据库实例，单例复用；没打开则自动打开
   Future<Database> get database async {
     final current = _database;
     if (current != null && current.isOpen) {
@@ -48,7 +50,7 @@ class AppDatabase {
     return opened;
   }
 
-///关闭数据库连接
+  ///关闭数据库连接
   Future<void> close() async {
     final current = _database;
     _database = null;
@@ -57,7 +59,7 @@ class AppDatabase {
     }
   }
 
-///清空全部业务数据，保留任务基础种子数据
+  ///清空全部业务数据，保留任务基础种子数据
   Future<void> clearAllData() async {
     final db = await database;
     await db.transaction((transaction) async {
@@ -80,7 +82,6 @@ class AppDatabase {
     });
   }
 }
-
 
 ///这是数据库管理类，负责打开、关闭数据库，
 ///支持一键清空业务数据并恢复初始任务数据。

@@ -20,34 +20,46 @@ class StateSnapshot {
     this.modelVersion,
   });
 
- /// 快照唯一ID
+  /// 快照唯一ID
   final String id;
+
   /// 归属的场景会话ID
   final String sceneSessionId;
+
   /// 算法计算完成时间
   final DateTime calculatedAt;
+
   /// 投入度 0~1
   final double investment;
+
   /// 消耗度 0~1
   final double depletion;
+
   /// 置信度 0~1，越低越模糊
   final double confidence;
+
   /// 判定象限：顺流/攻坚/空转/苦撑/模糊
   final Quadrant quadrant;
+
   /// 模糊原因，quadrant为模糊时才有值
   final AmbiguityReason? ambiguityReason;
+
   /// 判定依据证据包，存放算法判断的原始理由数据
   final Map<String, Object?> evidence;
+
   /// 原始文案模板（本地模板，云端润色前）
   final String templateText;
+
   /// 最终展示文案（云端润色后，断网则等于templateText）
   final String displayText;
+
   /// 是否被用户手动修正过
   final bool corrected;
+
   /// 算法/模型版本号
   final String? modelVersion;
 
-/// 转为数据库存储Map
+  /// 转为数据库存储Map
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -66,7 +78,7 @@ class StateSnapshot {
     };
   }
 
-/// 从数据库Map还原StateSnapshot对象
+  /// 从数据库Map还原StateSnapshot对象
   factory StateSnapshot.fromMap(Map<String, Object?> map) {
     final reason = map['ambiguity_reason'] as String?;
     return StateSnapshot(
@@ -90,8 +102,6 @@ class StateSnapshot {
     );
   }
 }
-
-
 
 ///算法跑出来的【结果快照】，界面上的心流地图坐标、状态文字全部读这个模型；
 ///用户修正记录（Correction）也是关联这一条 snapshotId。

@@ -2,17 +2,17 @@
 /// 和 api_contract.md 口径对齐
 const double investmentHighThreshold = 0.55; //投入度高阈值，>0.55 判定高投入
 const double depletionHighThreshold = 0.55; //消耗度高阈值，>0.55 判定高消耗
-const double fuzzyLower = 0.45;             // 模糊区间下限
-const double fuzzyUpper = 0.55;             // 模糊区间上限，0.45~0.55为边界模糊
-const double idleHeartRateRise = 5.0;       // 空转条件：心率上升幅度阈值
-const double idleInputThreshold = 0.25;     // 空转条件：输入活跃度阈值
-const double idleSedentaryMinutes = 40.0;    // 空转条件：连续久坐至少40分钟
-const int minimumFingerprintSamples = 20;    // 生成个人心流指纹最少样本数量
-const int minimumFingerprintDays = 14;      // 生成个人心流指纹最少采集天数
-const int defaultDailyInterruptBudget = 3;  // 每日恢复提醒上限次数
+const double fuzzyLower = 0.45; // 模糊区间下限
+const double fuzzyUpper = 0.55; // 模糊区间上限，0.45~0.55为边界模糊
+const double idleHeartRateRise = 5.0; // 空转条件：心率上升幅度阈值
+const double idleInputThreshold = 0.25; // 空转条件：输入活跃度阈值
+const double idleSedentaryMinutes = 40.0; // 空转条件：连续久坐至少40分钟
+const int minimumFingerprintSamples = 20; // 生成个人心流指纹最少样本数量
+const int minimumFingerprintDays = 14; // 生成个人心流指纹最少采集天数
+const int defaultDailyInterruptBudget = 3; // 每日恢复提醒上限次数
 const Duration cloudPolishTimeout = Duration(seconds: 3); // 云端文案接口超时时间
-const int sampleWindowSeconds = 30;          // 生理特征采样窗口：30秒一组
-const int segmentMinutes = 20;               // 学习片段最小结算单元：20分钟
+const int sampleWindowSeconds = 30; // 生理特征采样窗口：30秒一组
+const int segmentMinutes = 20; // 学习片段最小结算单元：20分钟
 
 ///场景标签枚举
 enum SceneType { study, classSession, rest, entertainment }
