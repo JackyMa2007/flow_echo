@@ -5,6 +5,7 @@ import '../data/repositories/notification_repository.dart';
 import '../data/repositories/segment_repository.dart';
 import '../data/repositories/state_repository.dart';
 import '../data/repositories/task_repository.dart';
+import '../simulation/sensor_simulator.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   throw StateError('databaseProvider must be overridden during startup.');
@@ -24,4 +25,8 @@ final taskRepositoryProvider = Provider<TaskRepository>((ref) {
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepository(ref.watch(databaseProvider));
+});
+
+final sensorSimulatorProvider = Provider<SensorSimulator>((ref) {
+  return SensorSimulator();
 });
