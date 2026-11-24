@@ -13,6 +13,58 @@ const int defaultDailyInterruptBudget = 3; // 每日恢复提醒上限次数
 const Duration cloudPolishTimeout = Duration(seconds: 3); // 云端文案接口超时时间
 const int sampleWindowSeconds = 30; // 生理特征采样窗口：30秒一组
 const int segmentMinutes = 20; // 学习片段最小结算单元：20分钟
+// 样本太少时结论不稳定，因此至少需要6个完整窗口。
+const int minimumFeatureSamples = 6;
+// 攒够12个窗口后，样本数量不再继续提高置信度。
+const int confidenceSampleTarget = 12;
+// 两个相邻窗口间隔超过5分钟，说明中间数据断了。
+const int sensorGapMinutes = 5;
+// 连续学习达到90分钟时，视为持续负荷达到上限。
+const int sustainedLoadMinutes = 90;
+
+// 以下数字是特征公式的可调参数，统一放在这里，避免散落在算法文件中。
+const double minimumHeartRateStd = 1.0;
+const double minimumHrvForDivision = 1.0;
+const double minimumInputBaseline = 0.05;
+const double sedentaryScoreStartMinutes = 20;
+const double sedentaryScoreSpanMinutes = 60;
+const double unlockScoreSpan = 8;
+const double switchPenaltySpan = 12;
+const double continuityScoreMinutes = 40;
+const double heartRateLoadDivisor = 2.0;
+
+// 投入度各项权重，总和为1。
+const double investmentInputWeight = 0.35;
+const double investmentSwitchWeight = 0.25;
+const double investmentContinuityWeight = 0.20;
+const double investmentUnlockWeight = 0.10;
+const double investmentSceneWeight = 0.10;
+
+// 消耗度各项权重，总和为1。
+const double depletionHrvWeight = 0.35;
+const double depletionHeartRateWeight = 0.25;
+const double depletionSedentaryWeight = 0.25;
+const double depletionSustainedWeight = 0.15;
+
+// 特征互相矛盾时使用的判断阈值。
+const double highInputConflictThreshold = 0.60;
+const double hrvDropConflictThreshold = 0.35;
+const int maxConflictCountForConfidence = 5;
+
+// 置信度权重与采样断档惩罚。
+const double confidenceSampleWeight = 0.40;
+const double confidenceCompletenessWeight = 0.30;
+const double confidenceConsistencyWeight = 0.30;
+const double largeGapConfidenceMultiplier = 0.70;
+
+// 不同场景对“学习投入”的匹配程度。
+const double studySceneRelevance = 1.0;
+const double classSceneRelevance = 1.0;
+const double restSceneRelevance = 0.2;
+const double entertainmentSceneRelevance = 0.3;
+
+// 置信度低于这个值时，状态引擎只返回“模糊”，不强行归类。
+const double minimumStateConfidence = 0.60;
 
 ///场景标签枚举
 enum SceneType { study, classSession, rest, entertainment }

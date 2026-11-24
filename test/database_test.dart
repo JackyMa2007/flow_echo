@@ -1,5 +1,6 @@
 import 'package:flow_echo/core/constants.dart';
 import 'package:flow_echo/data/db/app_database.dart';
+import 'package:flow_echo/data/repositories/baseline_repository.dart';
 import 'package:flow_echo/data/repositories/correction_repository.dart';
 import 'package:flow_echo/data/repositories/notification_repository.dart';
 import 'package:flow_echo/data/repositories/segment_repository.dart';
@@ -188,5 +189,18 @@ void main() {
       (await notificationRepository.findById(decision.id))?.level,
       NotificationLevel.l2,
     );
+  });
+
+  test('首次读取时自动创建默认个人基线', () async {
+    final repository = BaselineRepository(database);
+    final now = DateTime(2026, 11, 24, 8);
+
+    final first = await repository.getActive(now: now);
+    final second = await repository.getActive(now: now);
+
+    expect(first.kind, 'default');
+    expect(first.heartRate, 72);
+    expect(second.id, first.id);
+    expect(await repository.findById(first.id), isNotNull);
   });
 }

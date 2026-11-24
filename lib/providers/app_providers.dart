@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/db/app_database.dart';
+import '../data/repositories/baseline_repository.dart';
 import '../data/repositories/notification_repository.dart';
 import '../data/repositories/segment_repository.dart';
 import '../data/repositories/state_repository.dart';
 import '../data/repositories/task_repository.dart';
+import '../domain/engine/feature_extractor.dart';
+import '../domain/engine/state_engine.dart';
+import '../domain/models/baseline_state.dart';
 import '../simulation/sensor_simulator.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -25,6 +29,25 @@ final taskRepositoryProvider = Provider<TaskRepository>((ref) {
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepository(ref.watch(databaseProvider));
+});
+
+final baselineRepositoryProvider = Provider<BaselineRepository>((ref) {
+  return BaselineRepository(ref.watch(databaseProvider));
+});
+
+// 页面读取这个 Provider 时，会自动拿到当前基线；首次使用会创建默认基线。
+final activeBaselineProvider = FutureProvider<BaselineState>((ref) {
+  return ref.watch(baselineRepositoryProvider).getActive();
+});
+
+// 特征提取器不保存用户状态，可以安全复用同一个实例。
+final featureExtractorProvider = Provider<FeatureExtractor>((ref) {
+  return const FeatureExtractor();
+});
+
+// 状态判定引擎不保存数据，可以复用同一个无状态实例。
+final stateEngineProvider = Provider<StateEngine>((ref) {
+  return const StateEngine();
 });
 
 final sensorSimulatorProvider = Provider<SensorSimulator>((ref) {
