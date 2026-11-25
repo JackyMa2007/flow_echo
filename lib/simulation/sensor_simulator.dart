@@ -27,7 +27,10 @@ class SensorSimulator {
     _heartRate = _baseline.heartRate;
     _hrv = _baseline.hrv;
     _inputActivity = _baseline.inputActivity;
-    _sedentaryMinutes = 5;
+    // 空转演示需要从“已经久坐”的状态开始，否则短时间内无法满足三条件。
+    _sedentaryMinutes = scenario == SimulationScenario.idle
+        ? idleSedentaryMinutes
+        : 5;
     _unlockCount = _baseline.unlockPer10Min.round().toDouble();
     _appSwitchCount = 2;
   }

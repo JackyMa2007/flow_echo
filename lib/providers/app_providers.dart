@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../application/home_live_controller.dart';
 import '../application/scene_coordinator.dart';
+import '../core/constants.dart';
 import '../data/db/app_database.dart';
 import '../data/repositories/baseline_repository.dart';
 import '../data/repositories/notification_repository.dart';
@@ -12,6 +14,17 @@ import '../domain/engine/feature_extractor.dart';
 import '../domain/engine/state_engine.dart';
 import '../domain/models/baseline_state.dart';
 import '../simulation/sensor_simulator.dart';
+import '../simulation/simulation_scenario.dart';
+
+const String _demoScenarioName = String.fromEnvironment(
+  'DEMO_SCENARIO',
+  defaultValue: 'flow',
+);
+
+final SimulationScenario _demoScenario = SimulationScenario.values.firstWhere(
+  (scenario) => scenario.name == _demoScenarioName,
+  orElse: () => SimulationScenario.flow,
+);
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   throw StateError('databaseProvider must be overridden during startup.');
@@ -42,6 +55,20 @@ final sceneCoordinatorProvider = Provider<SceneCoordinator>((ref) {
   return SceneCoordinator(ref.watch(sceneSessionRepositoryProvider));
 });
 
+/// 首页实时数据控制器。页面销毁时同步取消定时器和监听器。
+final homeLiveControllerProvider = Provider<HomeLiveController>((ref) {
+  final controller = HomeLiveController(
+    ref.watch(sensorSimulatorProvider),
+    ref.watch(baselineRepositoryProvider),
+    ref.watch(featureExtractorProvider),
+    ref.watch(stateEngineProvider),
+    ref.watch(sceneCoordinatorProvider),
+    initialSampleCount: confidenceSampleTarget,
+  );
+  ref.onDispose(controller.dispose);
+  return controller;
+});
+
 final baselineRepositoryProvider = Provider<BaselineRepository>((ref) {
   return BaselineRepository(ref.watch(databaseProvider));
 });
@@ -62,5 +89,5 @@ final stateEngineProvider = Provider<StateEngine>((ref) {
 });
 
 final sensorSimulatorProvider = Provider<SensorSimulator>((ref) {
-  return SensorSimulator();
+  return SensorSimulator(scenario: _demoScenario);
 });
