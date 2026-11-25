@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/home_live_controller.dart';
 import '../../core/constants.dart';
 import '../../providers/app_providers.dart';
+import 'widgets/flow_map.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -61,6 +62,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                         unawaited(controller.switchScene(selection.first));
                       },
               ),
+            ),
+            const SizedBox(height: 20),
+            Text('心流地图', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 10),
+            FlowMap(
+              investment: state.evaluation.investment,
+              depletion: state.evaluation.depletion,
+              confidence: state.evaluation.confidence,
+              quadrant: state.evaluation.quadrant,
             ),
             const SizedBox(height: 20),
             _StateOverview(state: state),

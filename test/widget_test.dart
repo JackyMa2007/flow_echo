@@ -48,8 +48,7 @@ void main() {
     expect(find.text('心流回响'), findsOneWidget);
     expect(find.text('演示模拟数据，仅用于产品功能验证'), findsOneWidget);
     expect(find.text('当前场景'), findsOneWidget);
-    expect(find.text('当前坐标'), findsOneWidget);
-    expect(find.text('当前证据'), findsOneWidget);
+    expect(find.text('心流地图'), findsOneWidget);
     expect(find.text('首页'), findsOneWidget);
     expect(find.text('历史'), findsOneWidget);
     expect(find.text('指纹'), findsOneWidget);
