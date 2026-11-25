@@ -1,3 +1,4 @@
+import '../../core/constants.dart';
 import '../../core/json_utils.dart';
 
 ///基线模型
@@ -30,8 +31,8 @@ class BaselineState {
       hrv: 55,
       inputActivity: 0.55,
       unlockPer10Min: 2,
-      investmentThreshold: 0.55,
-      depletionThreshold: 0.55,
+      investmentThreshold: investmentHighThreshold,
+      depletionThreshold: depletionHighThreshold,
       source: 'system',
     );
   }

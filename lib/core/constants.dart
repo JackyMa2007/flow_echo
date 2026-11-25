@@ -140,3 +140,16 @@ extension CognitiveLoadX on CognitiveLoad {
     };
   }
 }
+
+enum SceneEndReason { sceneSwitch, appPause, manualStop, demoReset }
+
+extension SceneEndReasonX on SceneEndReason {
+  String get value {
+    return switch (this) {
+      SceneEndReason.sceneSwitch => 'scene_switch',
+      SceneEndReason.appPause => 'app_pause',
+      SceneEndReason.manualStop => 'manual_stop',
+      SceneEndReason.demoReset => 'demo_reset',
+    };
+  }
+}

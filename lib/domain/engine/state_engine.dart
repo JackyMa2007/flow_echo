@@ -16,15 +16,15 @@ class StateEngine {
     // 没有完整数据或样本太少时，任何象限结论都不可靠。
     if (!evidence.hasCompleteData ||
         evidence.sampleCount < minimumFeatureSamples) {
-      return _fuzzy(evidence, AmbiguityReason.insufficientData);
+      return _fuzzy(evidence, AmbiguityReason.insufficientData, baseline);
     }
 
     if (evidence.hasLargeGap) {
-      return _fuzzy(evidence, AmbiguityReason.insufficientData);
+      return _fuzzy(evidence, AmbiguityReason.insufficientData, baseline);
     }
 
     if (evidence.confidence < minimumStateConfidence) {
-      return _fuzzy(evidence, AmbiguityReason.featureConflict);
+      return _fuzzy(evidence, AmbiguityReason.featureConflict, baseline);
     }
 
     final heartRateAboveBaseline =
@@ -34,13 +34,13 @@ class StateEngine {
         evidence.sedentaryMinutes >= idleSedentaryMinutes;
     // 空转需要三项同时成立，成立后优先返回，不进入普通四象限判断。
     if (evidence.idleTripleSatisfied) {
-      return _result(evidence, Quadrant.idle);
+      return _result(evidence, Quadrant.idle, baseline);
     }
 
     // 久坐很长，并且心率或输入只有一项异常时，两类证据互相矛盾。
     if (sedentaryLongEnough &&
         (inputBelowIdleThreshold || heartRateAboveBaseline)) {
-      return _fuzzy(evidence, AmbiguityReason.featureConflict);
+      return _fuzzy(evidence, AmbiguityReason.featureConflict, baseline);
     }
 
     // 坐标落在0.45~0.55附近时，不强行归入某一象限。
@@ -49,42 +49,54 @@ class StateEngine {
     final depletionNearBoundary =
         evidence.depletion >= fuzzyLower && evidence.depletion <= fuzzyUpper;
     if (investmentNearBoundary || depletionNearBoundary) {
-      return _fuzzy(evidence, AmbiguityReason.nearBoundary);
+      return _fuzzy(evidence, AmbiguityReason.nearBoundary, baseline);
     }
 
     final highInvestment = evidence.investment >= baseline.investmentThreshold;
     final highDepletion = evidence.depletion >= baseline.depletionThreshold;
 
     if (highInvestment && !highDepletion) {
-      return _result(evidence, Quadrant.flow);
+      return _result(evidence, Quadrant.flow, baseline);
     }
     if (highInvestment && highDepletion) {
-      return _result(evidence, Quadrant.challenge);
+      return _result(evidence, Quadrant.challenge, baseline);
     }
     if (!highInvestment && highDepletion) {
-      return _result(evidence, Quadrant.struggle);
+      return _result(evidence, Quadrant.struggle, baseline);
     }
 
     // 低投入低消耗只有在空转三条件成立时才是空转，否则只能返回模糊。
-    return _fuzzy(evidence, AmbiguityReason.idleConditionsNotMet);
+    return _fuzzy(evidence, AmbiguityReason.idleConditionsNotMet, baseline);
   }
 
-  StateEvaluation _result(Evidence evidence, Quadrant quadrant) {
+  StateEvaluation _result(
+    Evidence evidence,
+    Quadrant quadrant,
+    BaselineState baseline,
+  ) {
     return StateEvaluation(
       quadrant: quadrant,
       investment: evidence.investment,
       depletion: evidence.depletion,
       confidence: evidence.confidence,
+      investmentThreshold: baseline.investmentThreshold,
+      depletionThreshold: baseline.depletionThreshold,
       evidence: evidence,
     );
   }
 
-  StateEvaluation _fuzzy(Evidence evidence, AmbiguityReason reason) {
+  StateEvaluation _fuzzy(
+    Evidence evidence,
+    AmbiguityReason reason,
+    BaselineState baseline,
+  ) {
     return StateEvaluation(
       quadrant: Quadrant.fuzzy,
       investment: evidence.investment,
       depletion: evidence.depletion,
       confidence: evidence.confidence,
+      investmentThreshold: baseline.investmentThreshold,
+      depletionThreshold: baseline.depletionThreshold,
       evidence: evidence,
       ambiguityReason: reason,
     );

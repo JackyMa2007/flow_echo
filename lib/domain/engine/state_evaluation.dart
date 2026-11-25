@@ -10,6 +10,8 @@ class StateEvaluation {
     required this.investment,
     required this.depletion,
     required this.confidence,
+    required this.investmentThreshold,
+    required this.depletionThreshold,
     required this.evidence,
     this.ambiguityReason,
   });
@@ -18,11 +20,13 @@ class StateEvaluation {
   final double investment;
   final double depletion;
   final double confidence;
+  final double investmentThreshold;
+  final double depletionThreshold;
   final Evidence evidence;
   final AmbiguityReason? ambiguityReason;
 
-  bool get isHighInvestment => investment >= investmentHighThreshold;
-  bool get isHighDepletion => depletion >= depletionHighThreshold;
+  bool get isHighInvestment => investment >= investmentThreshold;
+  bool get isHighDepletion => depletion >= depletionThreshold;
 
   /// 模糊状态必须带可读原因，不能只显示“模糊”两个字。
   String? get ambiguityText => ambiguityReason?.label;
@@ -33,6 +37,8 @@ class StateEvaluation {
       'investment': investment,
       'depletion': depletion,
       'confidence': confidence,
+      'investmentThreshold': investmentThreshold,
+      'depletionThreshold': depletionThreshold,
       'ambiguityReason': ambiguityReason?.name,
       'evidence': evidence.toJson(),
     };

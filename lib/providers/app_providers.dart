@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../application/scene_coordinator.dart';
 import '../data/db/app_database.dart';
 import '../data/repositories/baseline_repository.dart';
 import '../data/repositories/notification_repository.dart';
+import '../data/repositories/scene_session_repository.dart';
 import '../data/repositories/segment_repository.dart';
 import '../data/repositories/state_repository.dart';
 import '../data/repositories/task_repository.dart';
@@ -29,6 +31,15 @@ final taskRepositoryProvider = Provider<TaskRepository>((ref) {
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepository(ref.watch(databaseProvider));
+});
+
+final sceneSessionRepositoryProvider = Provider<SceneSessionRepository>((ref) {
+  return SceneSessionRepository(ref.watch(databaseProvider));
+});
+
+/// 全局只创建一个协调器，保证当前场景不会因页面刷新而丢失。
+final sceneCoordinatorProvider = Provider<SceneCoordinator>((ref) {
+  return SceneCoordinator(ref.watch(sceneSessionRepositoryProvider));
 });
 
 final baselineRepositoryProvider = Provider<BaselineRepository>((ref) {
