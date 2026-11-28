@@ -4,49 +4,138 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants.dart';
 
+typedef FlowMapCorrectionCallback = Future<bool> Function(
+  double investment,
+  double depletion,
+);
+
 /// 投入度-消耗度二维心流地图。
 /// 横轴：投入度investment（0-1，越靠右投入度越高）
 /// 纵轴：消耗度depletion（0-1，越靠上消耗越高）
 /// 四个象限：苦撑、攻坚、空转、顺流；模糊带代表模型不确定区域
-class FlowMap extends StatelessWidget {
+class FlowMap extends StatefulWidget {
   const FlowMap({
     super.key,
     required this.investment,
     required this.depletion,
     required this.confidence,
     required this.quadrant,
+    this.onCorrectionRequested,
   });
 
   final double investment; // 投入度 0~1
   final double depletion; // 消耗度 0~1
   final double confidence; // 置信度：模型对当前判断有多大把握 0~1
   final Quadrant quadrant; // 当前判定属于哪个象限（顺流/攻坚/空转/苦撑/模糊）
+  final FlowMapCorrectionCallback? onCorrectionRequested;
+
+  @override
+  State<FlowMap> createState() => _FlowMapState();
+}
+
+class _FlowMapState extends State<FlowMap> {
+  double? _previewInvestment;
+  double? _previewDepletion;
+  bool _submitting = false;
+
+  @override
+  void didUpdateWidget(FlowMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_submitting &&
+        (oldWidget.investment != widget.investment ||
+            oldWidget.depletion != widget.depletion)) {
+      _previewInvestment = null;
+      _previewDepletion = null;
+    }
+  }
+
+  void _updatePreview(Offset localPosition, Size size) {
+    if (widget.onCorrectionRequested == null) {
+      return;
+    }
+    final values = FlowMapPainter.canvasPointToMap(
+      localPosition,
+      FlowMapPainter.chartRectForSize(size),
+    );
+    setState(() {
+      _previewInvestment = values.$1;
+      _previewDepletion = values.$2;
+    });
+  }
+
+  Future<void> _finishDrag() async {
+    final callback = widget.onCorrectionRequested;
+    final investment = _previewInvestment;
+    final depletion = _previewDepletion;
+    if (callback == null || investment == null || depletion == null) {
+      setState(() {
+        _previewInvestment = null;
+        _previewDepletion = null;
+      });
+      return;
+    }
+
+    setState(() => _submitting = true);
+    final accepted = await callback(investment, depletion);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _submitting = false;
+      if (!accepted) {
+        _previewInvestment = null;
+        _previewDepletion = null;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // 防止外部传入超出0-1范围的脏数据，强制限制在合法区间
-    final safeInvestment = investment.clamp(0.0, 1.0).toDouble();
-    final safeDepletion = depletion.clamp(0.0, 1.0).toDouble();
-    final safeConfidence = confidence.clamp(0.0, 1.0).toDouble();
+    final safeInvestment = widget.investment.clamp(0.0, 1.0).toDouble();
+    final safeDepletion = widget.depletion.clamp(0.0, 1.0).toDouble();
+    final safeConfidence = widget.confidence.clamp(0.0, 1.0).toDouble();
+    final shownInvestment = _previewInvestment ?? safeInvestment;
+    final shownDepletion = _previewDepletion ?? safeDepletion;
 
     return Semantics(
       // 给读屏软件用的无障碍描述
       label:
-          '心流地图，投入度${(safeInvestment * 100).round()}%，'
-          '消耗度${(safeDepletion * 100).round()}%，'
-          '当前状态${quadrant.label}',
+          '心流地图，投入度${(shownInvestment * 100).round()}%，'
+          '消耗度${(shownDepletion * 100).round()}%，'
+          '当前状态${widget.quadrant.label}'
+          '${widget.onCorrectionRequested == null ? '' : '，可拖动校准'}',
       child: AspectRatio(
         aspectRatio: 1.05,
-        child: CustomPaint(
-          painter: FlowMapPainter(
-            investment: safeInvestment,
-            depletion: safeDepletion,
-            confidence: safeConfidence,
-            quadrant: quadrant,
-          ),
-          isComplex: true,
-          willChange: true,
-          child: const SizedBox.expand(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = constraints.biggest;
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanStart: widget.onCorrectionRequested == null
+                  ? null
+                  : (details) => _updatePreview(details.localPosition, size),
+              onPanUpdate: widget.onCorrectionRequested == null
+                  ? null
+                  : (details) => _updatePreview(details.localPosition, size),
+              onPanEnd: widget.onCorrectionRequested == null || _submitting
+                  ? null
+                  : (_) => _finishDrag(),
+              child: CustomPaint(
+                painter: FlowMapPainter(
+                  investment: safeInvestment,
+                  depletion: safeDepletion,
+                  confidence: safeConfidence,
+                  quadrant: widget.quadrant,
+                  previewInvestment: _previewInvestment,
+                  previewDepletion: _previewDepletion,
+                ),
+                isComplex: true,
+                willChange: true,
+                child: const SizedBox.expand(),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -59,12 +148,37 @@ class FlowMapPainter extends CustomPainter {
     required this.depletion,
     required this.confidence,
     required this.quadrant,
+    this.previewInvestment,
+    this.previewDepletion,
   });
 
   final double investment;
   final double depletion;
   final double confidence;
   final Quadrant quadrant;
+  final double? previewInvestment;
+  final double? previewDepletion;
+
+  @visibleForTesting
+  static Rect chartRectForSize(Size size) {
+    return Rect.fromLTRB(
+      math.max(42, size.width * 0.12),
+      16,
+      size.width - 16,
+      size.height - 42,
+    );
+  }
+
+  @visibleForTesting
+  static (double, double) canvasPointToMap(Offset point, Rect chart) {
+    if (chart.width <= 0 || chart.height <= 0) {
+      return (0, 0);
+    }
+    return (
+      ((point.dx - chart.left) / chart.width).clamp(0.0, 1.0).toDouble(),
+      ((chart.bottom - point.dy) / chart.height).clamp(0.0, 1.0).toDouble(),
+    );
+  }
 
   /// 将 0~1 的心流坐标映射到画布区域，消耗度需要从下往上增长。
   @visibleForTesting
@@ -85,12 +199,7 @@ class FlowMapPainter extends CustomPainter {
       return;
     }
 
-    final chart = Rect.fromLTRB(
-      math.max(42, size.width * 0.12),
-      16,
-      size.width - 16,
-      size.height - 42,
-    );
+    final chart = chartRectForSize(size);
 
     if (chart.width <= 0 || chart.height <= 0) {
       return;
@@ -103,6 +212,7 @@ class FlowMapPainter extends CustomPainter {
     _drawQuadrantLabels(canvas, chart); // 四个象限文字：苦撑、攻坚、空转、顺流
     _drawAxes(canvas, chart, size); // X轴Y轴名称：投入度、消耗度
     _drawCurrentPoint(canvas, chart); // 当前状态圆点（核心！用户实时位置）
+    _drawPreviewPoint(canvas, chart);
   }
 
   //画布底色
@@ -285,6 +395,48 @@ class FlowMapPainter extends CustomPainter {
     canvas.drawCircle(point, 4, Paint()..color = color);
   }
 
+  void _drawPreviewPoint(Canvas canvas, Rect chart) {
+    final investment = previewInvestment;
+    final depletion = previewDepletion;
+    if (investment == null || depletion == null) {
+      return;
+    }
+    final point = FlowMapPainter.mapPointToCanvas(investment, depletion, chart);
+    final oldPoint = FlowMapPainter.mapPointToCanvas(
+      this.investment,
+      this.depletion,
+      chart,
+    );
+    final color = _quadrantColor(quadrant);
+    final connector = Paint()
+      ..color = color.withValues(alpha: 0.45)
+      ..strokeWidth = 1.5;
+    canvas.drawLine(oldPoint, point, connector);
+    canvas.drawCircle(point, 9, Paint()..color = color.withValues(alpha: 0.16));
+    canvas.drawCircle(
+      point,
+      7,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = color,
+    );
+
+    final label =
+        '投入 ${(investment * 100).round()} · '
+        '消耗 ${(depletion * 100).round()}';
+    _drawCenteredText(
+      canvas,
+      label,
+      Offset(
+        point.dx.clamp(chart.left + 52, chart.right - 52).toDouble(),
+        (point.dy - 20).clamp(chart.top + 12, chart.bottom - 12).toDouble(),
+      ),
+      color: const Color(0xFF26322B),
+      fontSize: 11,
+    );
+  }
+
   // 【坐标转换核心】把0~1的投入度、消耗度，转成画布上真实像素坐标
   // investment → x：往右变大
   // depletion → y：往上变大，所以用 chart.bottom 减去
@@ -331,6 +483,8 @@ class FlowMapPainter extends CustomPainter {
     return investment != oldDelegate.investment ||
         depletion != oldDelegate.depletion ||
         confidence != oldDelegate.confidence ||
-        quadrant != oldDelegate.quadrant;
+        quadrant != oldDelegate.quadrant ||
+        previewInvestment != oldDelegate.previewInvestment ||
+        previewDepletion != oldDelegate.previewDepletion;
   }
 }
